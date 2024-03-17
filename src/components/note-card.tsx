@@ -2,6 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { X } from "lucide-react";
+import { ChangeEvent, useState } from "react";
 
 interface NoteCardProps {
   note: {
@@ -10,9 +11,17 @@ interface NoteCardProps {
     content: string;
   };
   onNoteDeleted: (id: string) => void;
+  onNoteEdited: (id: string, content: string) => void;
 }
 
-export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
+export function NoteCard({ note, onNoteDeleted, onNoteEdited}: NoteCardProps) {
+  const [editedContent, setEditedContent] = useState(note.content);
+
+  function handleContentChanged(event: ChangeEvent<HTMLTextAreaElement>){
+    onNoteEdited(note.id, event.target.value);
+    setEditedContent(event.target.value);
+  }
+
   return (
     <Dialog.Root>
       <Dialog.Trigger className="rounded-md text-left bg-slate-800 flex flex-col p-5 gap-3 overflow-hidden relative hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400 outline-none">
@@ -23,7 +32,7 @@ export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
           })}
         </span>
 
-        <p className="text-sm leading-6 text-slate-400">{note.content}</p>
+        <p className="text-sm leading-6 text-slate-400">{editedContent}</p>
 
         <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/60 to-black/0 pointer-events-none" />
       </Dialog.Trigger>
@@ -43,7 +52,11 @@ export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
               })}
             </span>
 
-            <p className="text-sm leading-6 text-slate-400">{note.content}</p>
+            <textarea 
+                onChange={handleContentChanged}
+                className="text-sm leading-6 text-slate-400 bg-transparent resize-none flex-1 outline-none"
+                value={editedContent}>
+            </textarea>
           </div>
 
           <button
